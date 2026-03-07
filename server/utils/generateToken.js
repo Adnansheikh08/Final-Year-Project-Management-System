@@ -1,6 +1,5 @@
 
 export const generateToken = (user,statusCode,message,res) => {
-    console.log(process.env.COOKIE_EXPIRE);
 
     const token = user.generateToken();
 

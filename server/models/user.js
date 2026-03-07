@@ -1,14 +1,14 @@
 import bcrypt from 'bcryptjs';
 import mongoose from 'mongoose';
 import jwt from 'jsonwebtoken';
-
+import crypto from 'crypto';
 
 const userSchema = new mongoose.Schema({
     name:{
         type: String,
         required: [true, 'Please enter your name'],
         trim: true,
-        MaxLength: [50, 'Name cannot exceed 50 characters']
+        maxLength: [50, 'Name cannot exceed 50 characters']
     },
     email:{
         type: String,
@@ -63,11 +63,10 @@ const userSchema = new mongoose.Schema({
     timestamps: true
 })
 
-userSchema.pre('save', async function(next) {
-    if (!this.isModified('password')) {
-        return next();
-    }
-    this.password = await bcrypt.hash(this.password, 10);
+userSchema.pre('save', async function () {
+  if (!this.isModified('password')) return;
+
+  this.password = await bcrypt.hash(this.password, 10);
 });
 
 userSchema.methods.generateToken = function() {
@@ -76,7 +75,20 @@ userSchema.methods.generateToken = function() {
     });
 }
 
+userSchema.methods.getResetPasswordToken = function() {
+    const resetToken = crypto.randomBytes(20).toString('hex');
+
+    this.resetpasswordToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+    
+    this.resetpasswordExpire = Date.now() + 15 * 60 * 1000;
+    return resetToken;
+}
+
 userSchema.methods.comparePassword = async function(password) {
     return await bcrypt.compare(password, this.password);
 }
+
 export const User = mongoose.model('User', userSchema);

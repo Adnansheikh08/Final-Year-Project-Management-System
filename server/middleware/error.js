@@ -12,7 +12,7 @@ export const errorMiddleware = (err, req, res, next) => {
         err.message = 'Duplicate field value entered';
         err= new ErrorHandler(400, err.message);
     }
-    if (err.name === 'jasonWebTokenError') {
+    if (err.name === 'JsonWebTokenError') {
         err.message = 'Json Web Token is invalid, try again';
         err = new ErrorHandler(400, err.message);
     }
