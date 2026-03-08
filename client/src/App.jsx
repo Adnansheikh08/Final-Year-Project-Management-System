@@ -33,8 +33,24 @@ import ProjectsPage from "./pages/admin/ProjectsPage";
 import { useDispatch, useSelector } from "react-redux";
 import { ToastContainer } from "react-toastify";
 import { Loader } from "lucide-react";
+import { getUser } from "./store/slices/authSlice";
 
 const App = () => {
+
+  const { authUser, isCheckingAuth } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(getUser());
+  }, [dispatch]);// this is how you store user data in the redux store when the app loads, it checks if the user is already logged in by making a request to the server and updates the auth state accordingly even after a page refresh, so the user doesn't have to log in again if they have a valid session cookie.
+
+  if (isCheckingAuth && !authUser) {
+    return (
+      <div className="flex items-center justify-center h-screen"> 
+        <Loader className="animate-spin" size={48} />
+      </div>
+    );
+  }
 
   return (
     <BrowserRouter>
@@ -50,6 +66,7 @@ const App = () => {
 
 
     </Routes>
+    <ToastContainer theme="dark"/>
     </BrowserRouter>
   );
 };
